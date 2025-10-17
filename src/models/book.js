@@ -115,7 +115,6 @@ BookSchema.index(
 );
 
 // Single-field indexes for filters
-BookSchema.index({ ISBN: 1 }, { unique: true });
 BookSchema.index({ authorIds: 1 });
 BookSchema.index({ categoryIds: 1 });
 BookSchema.index({ publisherId: 1 });

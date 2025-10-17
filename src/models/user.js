@@ -36,12 +36,32 @@ const UserSchema = new mongoose.Schema({
         type: 'String',
         enum: ['user', 'admin'],
         required: true
+    },
+    isEmailVerified: {
+        type: Boolean,
+        reequired: true,
+        default: false
+    },
+    OTP: {
+        code: {
+            type: String,
+            required: true
+        },
+        expiryTime: {
+            type: Date,
+            default: () => new Date(Date.now() + 1 * 60 * 1000) // expires in 1 min
+        }
     }
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
+
+  if (!this.isModified('OTP')) return next();
+  this.OTP.code = await bcrypt.hash(this.OTP.code, 10);
+
+  
   next();
 });
 
