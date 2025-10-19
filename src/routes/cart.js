@@ -5,9 +5,6 @@ const CartRouter = express.Router();
 // Get cart by user ID
 CartRouter.get('/user/:userId', (req, res) => {});
 
-// Create a new cart
-CartRouter.post('/', (req, res) => {});
-
 // Add item to cart
 CartRouter.post('/:cartId/book', (req, res) => {});
 

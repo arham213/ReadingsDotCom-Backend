@@ -1,65 +1,54 @@
 import { Address, User } from "../models/index.js";
 
 export const getAddressesByUserId = async (userId) => {
-    return await Address.find({ userId: userId });
+    const addresses = await Address.find({ userId: userId });
+
+    if (!addresses) throw new Error("Addresses not found.");
+    
+    return addresses;
+}
+
+export const getAddressById = async (addressId, userId) => {
+  const address = await Address.findOne({ _id: addressId, userId: userId });
+
+  if (!address) throw new Error("Address not found or unauthorized");
+
+  return address;
 }
 
 export const createAddress = async (userId, addressData) => {
   const user = await User.findById(userId);
 
-  if (!user) {
-    throw new Error("User not found");
-  }
+  if (!user) throw new Error("User not found");
 
   const newAddress = await Address.create({ ...addressData, userId });
 
-  const updatedUser = await User.findByIdAndUpdate( 
+  await User.findByIdAndUpdate( 
     userId,
-    { $addToSet: { addresses: newAddress._id } }, 
-    { new: true, runValidators: true } )
-    .populate('addresses') 
-    .populate('wishlistItems')
-    .lean();
+    { $addToSet: { addresses: newAddress._id } } )
 
-  const { password, ...userWithoutPassword } = updatedUser;
-
-  return userWithoutPassword;
+  return await Address.find({ userId: userId });
 };
 
-export const updateAddress = async (addressId, addressData) => {
-    const address = await Address.findByIdAndUpdate(addressId, addressData, { new: true });
+export const updateAddress = async (addressId, userId, addressData) => {
+    const updatedAddress = await Address.findOneAndUpdate({ _id: addressId, userId: userId}, addressData, { new: true, runValidators: true});
 
-    const updatedUser = await User.findById(
-        address.userId
-    )
-    .populate("addresses")
-    .populate("wishlistItems")
-    .lean();
+    if (!updatedAddress) throw new Error("Address not found or unauthorized");
 
-    const { password, ...userWithoutPassword } = updatedUser;
-
-    return userWithoutPassword;
+    return await Address.find({ userId: updatedAddress.userId });
 }
 
-export const deleteAddress = async (addressId) => {
-    const address = await Address.findById(addressId);
+export const deleteAddress = async (addressId, userId) => {
+    const address = await Address.findOne({ _id: addressId, userId: userId});
 
-    if (!address) {
-        throw new Error("Address not found");
-    }
+    if (!address) throw new Error("Address not found or unauthorized");
 
-    const updatedUser = await User.findByIdAndUpdate(
-        address.userId, 
-        { $pull: { addresses: address._id } }, 
-        { new: true }
-      )
-      .populate("addresses")
-      .populate("wishlistItems")
-      .lean()
-    
     await address.deleteOne();
 
-    const { password, ...userWithoutPassword } = updatedUser;
+    await User.findByIdAndUpdate(
+        address.userId, 
+        { $pull: { addresses: address._id } }
+      )
 
-    return userWithoutPassword;
+    return await Address.find({ userId: address.userId });
 }

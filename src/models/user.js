@@ -39,30 +39,56 @@ const UserSchema = new mongoose.Schema({
     },
     isEmailVerified: {
         type: Boolean,
-        reequired: true,
+        required: true,
         default: false
     },
     OTP: {
         code: {
-            type: String,
-            required: true
+            type: String
         },
         expiryTime: {
-            type: Date,
-            default: () => new Date(Date.now() + 1 * 60 * 1000) // expires in 1 min
+            type: Date
         }
+    },
+    lastOTPSentAt: {
+        type: Date,
+        default: null
+    },
+    resetPasswordOTP: {
+        code: {
+            type: String,
+        },
+        expiryTime: {
+            type: Date
+        }
+    },
+    lastResetPasswordOTPSentAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+    try {
+        // Hash password if modified
+        if (this.isModified('password')) {
+            this.password = await bcrypt.hash(this.password, 10);
+        }
 
-  if (!this.isModified('OTP')) return next();
-  this.OTP.code = await bcrypt.hash(this.OTP.code, 10);
+        // Hash OTP if modified
+        if (this.isModified('OTP.code')) {
+            this.OTP.code = await bcrypt.hash(this.OTP.code, 10);
+        }
 
-  
-  next();
+        // Hash resetPassword OTP
+        if (this.isModified('resetPasswordOTP.code')) {
+            this.resetPasswordOTP.code = await bcrypt.hash(this.resetPasswordOTP.code, 10);
+        }
+
+        next();
+    } catch (error) {
+        next(new Error("Failed to process user data. Please try again."))
+    }
 });
 
 

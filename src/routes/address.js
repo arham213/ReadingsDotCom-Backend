@@ -1,5 +1,6 @@
 import express from 'express';
-import { CreateAddress, DeleteAddress, GetAddressesByUserId, UpdateAddress } from '../controllers/address.js';
+import { CreateAddress, DeleteAddress, GetAddressById, GetAddressesByUserId, UpdateAddress } from '../controllers/address.js';
+import { authMiddleware } from "../middlewares/auth.js";
 
 const AddressRouter = express.Router();
 
@@ -7,15 +8,15 @@ const AddressRouter = express.Router();
 AddressRouter.get('/user/:userId', GetAddressesByUserId);
 
 // Get a single Address by ID
-AddressRouter.get('/:addressId', (req, res) => {});
+AddressRouter.get('/:addressId/user/:userId', GetAddressById);
 
 // Create a new Address for user
 AddressRouter.post('/user/:userId', CreateAddress);
 
 // Update an Address by ID
-AddressRouter.put('/:addressId', UpdateAddress);
+AddressRouter.put('/:addressId/user/:userId', UpdateAddress);
 
 // Delete an Address by ID
-AddressRouter.delete('/:addressId', DeleteAddress);
+AddressRouter.delete('/:addressId/user/:userId', DeleteAddress);
 
 export default AddressRouter;

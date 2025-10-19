@@ -53,6 +53,18 @@ export const loginSchema = z.object({
     .min(1, "Password is required")
 }).strict()
 
+export const resetPasswordSchema = z.object({
+    newPassword: z
+    .string()
+    .min(6, 'Password must be at least 6 characters long')
+    .max(100, 'Password is too long'),
+
+    OTP: z
+    .string()
+    .min(6, "OTP is required and should be of 6 digits")
+    .max(6)
+}).strict()
+
 export const editUserSchema = z.object({
   fname: z
     .string()
@@ -66,23 +78,13 @@ export const editUserSchema = z.object({
     .max(50, "Last name cannot exceed 50 characters")
     .optional(),
 
-  currentPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters long")
-    .optional(),
-
-  newPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters long")
-    .optional(),
-
   contactNo: z
     .string()
     .regex(/^[0-9]{10,15}$/, "Contact number must be between 10 to 15 digits")
     .optional(),
 }).strict();
 
-export const userIdParamsSchema = z.object({
+export const objectIdParamsSchema = z.object({
     userId: z
     .string()
     .min(1, "userId is required")

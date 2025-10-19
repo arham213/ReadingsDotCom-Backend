@@ -1,12 +1,17 @@
 import express from 'express';
 import { validateRequest } from '../middlewares/validateRequest.js';
-import { loginSchema, signupSchema, editUserSchema, userIdParamsSchema, verifyEmailSchema, addToWishListSchema, removeFromWishListSchema } from '../validators/user.js';
-import { Signup, VerifyEmail, Login, EditUser, AddToWishList, DeleteUser } from '../controllers/user.js';
+import { loginSchema, signupSchema, editUserSchema, objectIdParamsSchema, verifyEmailSchema, addToWishListSchema, removeFromWishListSchema, resetPasswordSchema } from '../validators/user.js';
+import { Signup, VerifyEmail, Login, EditUser, AddToWishList, DeleteUser, ResendOTP, ForgotPassword, ResetPassword, RemoveFromWishlist, GetUserById } from '../controllers/user.js';
+import { resendOTPLimiter } from '../middlewares/rateLimiter.js';
+import { authMiddleware } from "../middlewares/auth.js";
 
 const UserRouter = express.Router();
 
 // User Signup
 UserRouter.post('/signup', validateRequest({ body: signupSchema }), Signup);
+
+// User Resend OTP
+UserRouter.get('/:userId/resendOTP', resendOTPLimiter, validateRequest({ params: objectIdParamsSchema }), ResendOTP);
 
 // User Email Verification
 UserRouter.post('/verifyEmail', validateRequest({ body: verifyEmailSchema }), VerifyEmail);
@@ -14,16 +19,25 @@ UserRouter.post('/verifyEmail', validateRequest({ body: verifyEmailSchema }), Ve
 // User Login
 UserRouter.post('/login', validateRequest({ body: loginSchema }), Login);
 
+// User Forgot Password
+UserRouter.get('/:userId/forgotPassword', authMiddleware, resendOTPLimiter, validateRequest({ params: objectIdParamsSchema}), ForgotPassword);
+
+// User Reset Password
+UserRouter.post('/:userId/resetPassword', authMiddleware, validateRequest({ body: resetPasswordSchema, params: objectIdParamsSchema }), ResetPassword);
+
 // Edit User By Id
-UserRouter.put('/:userId', validateRequest({ body: editUserSchema, params: userIdParamsSchema }), EditUser);
+UserRouter.put('/:userId', authMiddleware, validateRequest({ body: editUserSchema, params: objectIdParamsSchema }), EditUser);
+
+// Get User By Id
+UserRouter.get('/:userId', authMiddleware, validateRequest({ params: objectIdParamsSchema }), GetUserById);
 
 // Remove User By Id
-UserRouter.delete('/:userId', validateRequest({ params: userIdParamsSchema }), DeleteUser);
+UserRouter.delete('/:userId', authMiddleware, validateRequest({ params: objectIdParamsSchema }), DeleteUser);
 
 // Add item to wishlist
-UserRouter.post('/:userId/wishlist/:bookId', validateRequest({ body: addToWishListSchema }), AddToWishList);
+UserRouter.post('/:userId/wishlist/:bookId', authMiddleware, validateRequest({ params: addToWishListSchema }), AddToWishList);
 
 // Remove item from wishlist
-UserRouter.delete('/:userId/wishlist/:bookId', validateRequest({ params: removeFromWishListSchema }), (req, res) => { });
+UserRouter.delete('/:userId/wishlist/:bookId', authMiddleware, validateRequest({ params: removeFromWishListSchema }), RemoveFromWishlist);
 
 export default UserRouter;

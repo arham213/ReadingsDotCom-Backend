@@ -8,16 +8,17 @@ import CategoryRouter from "./category.js";
 import AuthorRouter from "./author.js";
 import PublisherRouter from "./publisher.js";
 import BookRequestRouter from "./bookRequest.js";
+import { authMiddleware } from "../middlewares/auth.js";
 
 const router = express.Router();
 
 router.use('/users', UserRouter);
-router.use('/addresses', AddressRouter);
+router.use('/addresses', authMiddleware, AddressRouter);
 router.use('/cart', CartRouter);
 router.use('/orders', OrderRouter);
 router.use('/books', BookRouter);
 router.use('/categories', CategoryRouter);
-router.use('/authors', AuthorRouter);
+router.use('/authors', authMiddleware, AuthorRouter);
 router.use('/publishers', PublisherRouter);
 router.use('/book-requests', BookRequestRouter);
 

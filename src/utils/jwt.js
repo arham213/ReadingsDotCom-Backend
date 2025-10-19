@@ -12,3 +12,11 @@ export const generateToken = (user) => {
 
     return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
+
+export const verifyToken = (token) => {
+    try {
+        return jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+        throw new Error("Invalid or expired token");
+    }
+}

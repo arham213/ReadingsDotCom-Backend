@@ -15,3 +15,14 @@ export const failureResponse = (res, err, statusCode) => {
         },
     });
 }
+
+export const failureResponseWithData = (res, err, data, statusCode) => {
+    return res.status(statusCode).json({
+        success: false,
+        error: {
+            message: err.message || err || "Internal Server Error",
+            ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+        },
+        ...(data && {data: data})
+    });
+}
