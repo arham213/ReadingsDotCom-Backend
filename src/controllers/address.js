@@ -7,7 +7,7 @@ export const GetAddressesByUserId = async (req, res, next) => {
 
         const addresses = await getAddressesByUserId(userId);
 
-        return successResponse(res, "Addresses fetched successfully", {addresses: addresses}, 200);
+        return successResponse(res, "Addresses fetched successfully", { addresses }, 200);
     } catch (error) {
         next(error);
     }
@@ -19,7 +19,7 @@ export const GetAddressById = async (req, res, next) => {
 
         const address = await getAddressById(addressId, userId);
 
-        return successResponse(res, "Address fetched successfully.", {address: address}, 200);
+        return successResponse(res, "Address fetched successfully.", { address }, 200);
     } catch (error) {
         next(error);
     }
@@ -33,7 +33,7 @@ export const CreateAddress = async (req, res, next) => {
 
         const address = await createAddress(userId, addressData);
 
-        return successResponse(res, "Address created successfully", {address: address}, 201);
+        return successResponse(res, "Address created successfully", { address }, 201);
     } catch (error) {
         next(error);
     }
@@ -45,9 +45,9 @@ export const UpdateAddress = async (req, res, next) => {
 
         const addressData = req.body;
 
-        const updatedAddresses = await updateAddress(addressId, userId, addressData);
+        const address = await updateAddress(addressId, userId, addressData);
 
-        return successResponse(res, "Address updated successfully", {addresses: updatedAddresses}, 200);
+        return successResponse(res, "Address updated successfully", { address }, 200);
     } catch (error) {
         next(error);
     }
@@ -57,9 +57,9 @@ export const DeleteAddress = async (req, res, next) => {
     try {
         const { addressId, userId } = req.params;
 
-        const remainingAddresses = await deleteAddress(addressId, userId);
+        const address = await deleteAddress(addressId, userId);
 
-        return successResponse(res, "Address deleted successfully", {addresses: remainingAddresses}, 200);
+        return successResponse(res, "Address deleted successfully", { address }, 200);
     } catch (error) {
         next(error);
     }

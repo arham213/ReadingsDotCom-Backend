@@ -33,7 +33,7 @@ const BookSchema = new mongoose.Schema({
     listPriceCurrency: {
         type: String,
         required: true,
-        default: 'Rs'
+        default: 'Rs.'
     },
     ourPrice: {
         type: Number,
@@ -56,31 +56,31 @@ const BookSchema = new mongoose.Schema({
         enum: ['Audio Book', 'Board Book', 'Flexi Bind', 'Hard Cover', 'Paperback'],
         required: true
     },
-    yearPublished: {
+    publicationYear: {
         type: Number,
         required: true
     },
-    publisherId: {
+    publisher: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Publisher',
         required: true
     },
-    authorIds: [{
+    authors: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Author',
         required: true
     }],
-    categoryIds: [{
+    categories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
         required: true
     }],
-    subCategoryIds: [{
+    subCategories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
         default: []
     }],
-    additionalCategoryIds: [{
+    additionalCategories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
         default: []
@@ -105,19 +105,10 @@ BookSchema.pre('save', function (next) {
     next();
 });
 
-// Text index for keyword search (title + description)
-BookSchema.index(
-  { title: "text", description: "text" },
-  {
-    name: "TextSearchIndex",
-    weights: { title: 5, description: 1 }, // prioritize title matches
-  }
-);
-
 // Single-field indexes for filters
-BookSchema.index({ authorIds: 1 });
-BookSchema.index({ categoryIds: 1 });
-BookSchema.index({ publisherId: 1 });
+BookSchema.index({ authors: 1 });
+BookSchema.index({ categories: 1 });
+BookSchema.index({ publisher: 1 });
 BookSchema.index({ yearPublished: 1 });
 BookSchema.index({ language: 1 });
 BookSchema.index({ format: 1 });

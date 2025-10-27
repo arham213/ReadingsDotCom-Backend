@@ -1,55 +1,46 @@
 import { Author } from "../models/index.js";
+import { AppError } from "../utils/AppError.js";
 
-export const getAllAuthors = async (userRole) => {
+export const getAllAuthors = async () => {
     const authors = await Author.find();
 
     return authors;
 }
 
-export const getAuthorById = async (userRole, authorId) => {
+export const getAuthorById = async (authorId) => {
     const author = await Author.findById(authorId);
 
-    if (!author) throw new Error("Author not found");
+    if (!author) throw new AppError("Author not found", 404);
 
     return author;
 }
 
-export const createAuthor = async (userRole, authorData) => {
+export const createAuthor = async (authorData) => {
     const author = await Author.findOne({ name: authorData.name });
     
-    if (author) throw new Error("Author already exists");
+    if (author) throw new AppError("Author already exists", 409);
 
     const newAuthor = await Author.create(authorData);
 
     return newAuthor;
 }
 
-export const updateAuthor = async (userRole, authorId, authorData) => {
-    if (authorData.name) {
-        const authorBeingEdited = await Author.findById(authorId);
-
-        if (!authorBeingEdited) throw new Error("Author not found");
-
-        const author = await Author.findOne({ name: authorData.name });
-
-        if ((authorBeingEdited.name !== authorData.name) && author) throw new Error("Author with this name already exists.");
-    }
-
+export const updateAuthor = async (authorId, authorData) => {
     const updatedAuthor = await Author.findByIdAndUpdate(
         authorId,
         authorData,
         { new: true, runValidators: true }
     )
 
-    if (!updatedAuthor) throw new Error("Author not found");
+    if (!updatedAuthor) throw new AppError("Author not found", 404);
 
-    return await Author.find();
+    return updatedAuthor;
 }
 
-export const deleteAuthor = async (userRole, authorId) => {
-    const author = await Author.findByIdAndDelete(authorId);
+export const deleteAuthor = async (authorId) => {
+    const deletedAuthor = await Author.findByIdAndDelete(authorId);
 
-    if (!author) throw new Error("Author not found");
+    if (!deletedAuthor) throw new AppError("Author not found", 404);
 
-    return await Author.find();
+    return deletedAuthor;
 }

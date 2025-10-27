@@ -1,20 +1,22 @@
 import express from 'express';
 
+import { GetAllPublishers, GetPublisherById, CreatePublisher, DeletePublisher, UpdatePublisher } from '../controllers/publisher.js';
+
 const PublisherRouter = express.Router();
 
 // Get all Publishers
-PublisherRouter.get('/', (req, res) => {});
+PublisherRouter.get('/', GetAllPublishers);
 
 // Get a single Publisher by ID
-PublisherRouter.get('/:publisherId', (req, res) => {});
+PublisherRouter.get('/:publisherId', GetPublisherById);
 
 // Create a new Publisher
-PublisherRouter.post('/', (req, res) => {});
+PublisherRouter.post('/', CreatePublisher);
 
 // Update a Publisher by ID
-PublisherRouter.put('/:publisherId', (req, res) => {});
+PublisherRouter.put('/:publisherId', UpdatePublisher);
 
 // Delete a Publisher by ID
-PublisherRouter.delete('/:publisherId', (req, res) => {});
+PublisherRouter.delete('/:publisherId', DeletePublisher);
 
 export default PublisherRouter;

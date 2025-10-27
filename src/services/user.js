@@ -6,7 +6,7 @@ import { generateOTP, verifyOTP } from "../utils/OTP.js";
 import { sendEmail } from "../utils/emailServer.js";
 import { AppError } from "../utils/AppError.js";
 
-const OTP_EXPIRY_MIN = 1;
+const OTP_EXPIRY_MIN = 10;
 
 export const createUser = async (userData) => {
   const user = await User.findOne({ email: userData.email }) 
@@ -62,7 +62,7 @@ export const verifyEmail = async (userData) => {
 
     await user.save();
 
-    return user._id;
+    return user;
 }
 
 export const loginUser = async (userData) => {

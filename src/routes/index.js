@@ -9,17 +9,18 @@ import AuthorRouter from "./author.js";
 import PublisherRouter from "./publisher.js";
 import BookRequestRouter from "./bookRequest.js";
 import { authMiddleware } from "../middlewares/auth.js";
+import { authorizeRoles } from "../middlewares/authorizeRoles.js";
 
 const router = express.Router();
 
 router.use('/users', UserRouter);
 router.use('/addresses', authMiddleware, AddressRouter);
-router.use('/cart', CartRouter);
-router.use('/orders', OrderRouter);
-router.use('/books', BookRouter);
-router.use('/categories', CategoryRouter);
-router.use('/authors', authMiddleware, AuthorRouter);
-router.use('/publishers', PublisherRouter);
+router.use('/cart', authMiddleware, authorizeRoles("user"), CartRouter);
+router.use('/orders', authMiddleware, OrderRouter);
+router.use('/books', authMiddleware, BookRouter);
+router.use('/categories', authMiddleware, authorizeRoles("admin"), CategoryRouter);
+router.use('/authors', authMiddleware, authorizeRoles("admin"), AuthorRouter);
+router.use('/publishers', authMiddleware, authorizeRoles("admin"), PublisherRouter);
 router.use('/book-requests', BookRequestRouter);
 
 export default router;

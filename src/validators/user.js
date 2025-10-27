@@ -92,11 +92,6 @@ export const objectIdParamsSchema = z.object({
 }).strict()
 
 export const addToWishListSchema = z.object({
-    userId: z
-    .string()
-    .min(1, "userId is required")
-    .regex(/^[0-9a-fA-F]{24}$/, "Invalid userId format"),
-
     bookId: z
     .string()
     .min(1, "bookId is required")
@@ -104,11 +99,6 @@ export const addToWishListSchema = z.object({
 }).strict();
 
 export const removeFromWishListSchema = z.object({
-    userId: z
-    .string()
-    .min(1, "userId is required")
-    .regex(/^[0-9a-fA-F]{24}$/, "Invalid userId format"),
-
     bookId: z
     .string()
     .min(1, "bookId is required")

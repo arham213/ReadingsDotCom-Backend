@@ -1,17 +1,20 @@
 import express from 'express';
+import { addItemToCart, deleteItemInCart, getCartByUserId, updateItemInCart } from '../controllers/cart.js';
 
 const CartRouter = express.Router();
 
 // Get cart by user ID
-CartRouter.get('/user/:userId', (req, res) => {});
+CartRouter.get('/', getCartByUserId);
 
 // Add item to cart
-CartRouter.post('/:cartId/book', (req, res) => {});
+CartRouter.post('/', addItemToCart);
 
 // Update item in the cart by book ID
-CartRouter.put('/:cartId/books/:bookId', (req, res) => {});
+CartRouter.put('/', updateItemInCart);
 
 // Delete item from the cart by book ID
-CartRouter.delete('/:cartId/books/:bookId', (req, res) => {});
+CartRouter.delete('/', deleteItemInCart);
+
+//clear cart api
 
 export default CartRouter;

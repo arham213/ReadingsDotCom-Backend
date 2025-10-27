@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
 const CategorySchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
     code: {
         type: Number,
         required: true,
         unique: true
+    },
+    name: {
+        type: String,
+        required: true,
+        trim: true
     }
 }, {timestamps: true})
 

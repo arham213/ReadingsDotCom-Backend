@@ -32,9 +32,11 @@ export const VerifyEmail = async (req, res, next) => {
   try {
     const userData = req.body;
 
-    const userId = await verifyEmail(userData);
+    const user = await verifyEmail(userData);
 
-    await createCart(userId);
+    if (user.role === "user") {
+      await createCart(user._id);
+    }
 
     return successResponse(res, 'Email verified successfully', null , 200);
   } catch (error) {
@@ -52,16 +54,23 @@ export const Login = async (req, res, next) => {
       return failureResponseWithData(res, response.error, { userId: response.userId }, response.statusCode);
     }
 
-    const cart = await getCart(response.user._id);
+    let cart;
+
+    if (response.user.role === "user") {
+      cart = await getCart(response.user._id);
+    }
 
     const data = {
       user: {
         id: response.user._id,
         email: response.user.email,
       },
-      cart: {
-        cartItemCount: cart.itemCount,
-      },
+      ...(response.user.role === "user" && {
+        cart: {
+          cartItemCount: cart.itemCount,
+          cartId: cart._id
+        },
+      }),
       token: response.token
     }
 
@@ -129,9 +138,7 @@ export const DeleteUser = async (req, res, next) => {
 
 export const AddToWishList = async(req, res, next) => {
   try {
-    const { userId, bookId } = req.params;
-
-    const user = await addToWishList(userId, bookId);
+    const user = await addToWishList(req.user.id, req.params.bookId);
 
     return successResponse(res, "Item added to the wishlist successfully", {user: user}, 200);
   } catch (error) {
@@ -141,9 +148,7 @@ export const AddToWishList = async(req, res, next) => {
 
 export const RemoveFromWishlist = async(req, res, next) => {
   try {
-    const { userId, bookId } = req.params;
-
-    const user = await removeFromWishlist(userId, bookId);
+    const user = await removeFromWishlist(req.user.id, req.params.bookId);
 
     return successResponse(res, "Item removed from the wishlist successfully", {user: user}, 200);
   } catch (error) {

@@ -9,8 +9,8 @@ import { successResponse } from "../utils/response.js";
 
 export const GetAllAuthors = async (req, res, next) => {
   try {
-    const authors = await getAllAuthors(req.user.role);
-    return successResponse(res, "Authors fetched successfully", { authors });
+    const authors = await getAllAuthors();
+    return successResponse(res, "Authors fetched successfully", { authors }, 200);
   } catch (error) {
     next(error);
   }
@@ -18,8 +18,8 @@ export const GetAllAuthors = async (req, res, next) => {
 
 export const GetAuthorById = async (req, res, next) => {
   try {
-    const author = await getAuthorById(req.user.role, req.params.authorId);
-    return successResponse(res, "Author fetched successfully", { author });
+    const author = await getAuthorById(req.params.authorId);
+    return successResponse(res, "Author fetched successfully", { author }, 200);
   } catch (error) {
     next(error);
   }
@@ -27,7 +27,7 @@ export const GetAuthorById = async (req, res, next) => {
 
 export const CreateAuthor = async (req, res, next) => {
   try {
-    const author = await createAuthor(req.user.role, req.body);
+    const author = await createAuthor(req.body);
     return successResponse(res, "Author created successfully", { author }, 201);
   } catch (error) {
     next(error);
@@ -36,12 +36,11 @@ export const CreateAuthor = async (req, res, next) => {
 
 export const UpdateAuthor = async (req, res, next) => {
   try {
-    const updatedAuthor = await updateAuthor(
-      req.user.role,
+    const author = await updateAuthor(
       req.params.authorId,
       req.body
     );
-    return successResponse(res, "Author updated successfully", { author: updatedAuthor });
+    return successResponse(res, "Author updated successfully", { author }, 200);
   } catch (error) {
     next(error);
   }
@@ -49,8 +48,8 @@ export const UpdateAuthor = async (req, res, next) => {
 
 export const DeleteAuthor = async (req, res, next) => {
   try {
-    const deletedAuthor = await deleteAuthor(req.user.role, req.params.authorId);
-    return successResponse(res, "Author deleted successfully", { author: deletedAuthor });
+    const author = await deleteAuthor(req.params.authorId);
+    return successResponse(res, "Author deleted successfully", { author }, 200);
   } catch (error) {
     next(error);
   }

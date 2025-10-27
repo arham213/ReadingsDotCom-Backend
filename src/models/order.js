@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
+    orderNo: {
+        type: Number,
+        unique: true
+    },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -66,7 +70,12 @@ const OrderSchema = new mongoose.Schema({
             type: Number,
             required: true
         }
-    }]
+    }],
+    status: {
+        type: String,
+        enum: ['Pending', 'In Process', 'Shipped', 'Deliverd', 'Cancelled'],
+        default: 'Pending'
+    }
 }, {timestamps: true})
 
 OrderSchema.pre('save', function(next) {

@@ -4,6 +4,7 @@ import { loginSchema, signupSchema, editUserSchema, objectIdParamsSchema, verify
 import { Signup, VerifyEmail, Login, EditUser, AddToWishList, DeleteUser, ResendOTP, ForgotPassword, ResetPassword, RemoveFromWishlist, GetUserById } from '../controllers/user.js';
 import { resendOTPLimiter } from '../middlewares/rateLimiter.js';
 import { authMiddleware } from "../middlewares/auth.js";
+import { authorizeRoles } from "../middlewares/authorizeRoles.js";
 
 const UserRouter = express.Router();
 
@@ -20,10 +21,10 @@ UserRouter.post('/verifyEmail', validateRequest({ body: verifyEmailSchema }), Ve
 UserRouter.post('/login', validateRequest({ body: loginSchema }), Login);
 
 // User Forgot Password
-UserRouter.get('/:userId/forgotPassword', authMiddleware, resendOTPLimiter, validateRequest({ params: objectIdParamsSchema}), ForgotPassword);
+UserRouter.post('/forgotPassword', resendOTPLimiter, validateRequest({ params: objectIdParamsSchema}), ForgotPassword);
 
 // User Reset Password
-UserRouter.post('/:userId/resetPassword', authMiddleware, validateRequest({ body: resetPasswordSchema, params: objectIdParamsSchema }), ResetPassword);
+UserRouter.post('/resetPassword', validateRequest({ body: resetPasswordSchema }), ResetPassword);
 
 // Edit User By Id
 UserRouter.put('/:userId', authMiddleware, validateRequest({ body: editUserSchema, params: objectIdParamsSchema }), EditUser);
@@ -35,9 +36,9 @@ UserRouter.get('/:userId', authMiddleware, validateRequest({ params: objectIdPar
 UserRouter.delete('/:userId', authMiddleware, validateRequest({ params: objectIdParamsSchema }), DeleteUser);
 
 // Add item to wishlist
-UserRouter.post('/:userId/wishlist/:bookId', authMiddleware, validateRequest({ params: addToWishListSchema }), AddToWishList);
+UserRouter.post('/wishlist/:bookId', authMiddleware, authorizeRoles("user"), validateRequest({ params: addToWishListSchema }), AddToWishList);
 
 // Remove item from wishlist
-UserRouter.delete('/:userId/wishlist/:bookId', authMiddleware, validateRequest({ params: removeFromWishListSchema }), RemoveFromWishlist);
+UserRouter.delete('/wishlist/:bookId', authMiddleware, authorizeRoles("user"), validateRequest({ params: removeFromWishListSchema }), RemoveFromWishlist);
 
 export default UserRouter;

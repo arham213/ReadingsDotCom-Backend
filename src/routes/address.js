@@ -7,9 +7,6 @@ const AddressRouter = express.Router();
 // Get all Addresss By userId
 AddressRouter.get('/user/:userId', GetAddressesByUserId);
 
-// Get a single Address by ID
-AddressRouter.get('/:addressId/user/:userId', GetAddressById);
-
 // Create a new Address for user
 AddressRouter.post('/user/:userId', CreateAddress);
 
