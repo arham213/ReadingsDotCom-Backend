@@ -11,7 +11,7 @@ BookRouter.get('/search', SearchBooks);
 BookRouter.get('/advanced-search', AdvancedBookSearch);
 
 // Get All books
-BookRouter.get('/', authorizeRoles("admin"), GetAllBooks);
+BookRouter.get('/', GetAllBooks);
 
 // Get Books By Category
 BookRouter.get('/:categoryCode', GetBooksByCategory)

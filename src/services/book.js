@@ -96,25 +96,17 @@ export const getAllBooks = async () => {
 }
 
 export const getBooksByCategory = async (categoryCode) => {
-    const books = await Book.aggregate([
-        {
-            $lookup: {
-                from: "categories",
-                localField: "categoryIds",
-                foreignField: "_id",
-                as: "categories"
-            }
-        },
-        {
-            $unwind: "$categories"
-        },
-        {
-            $match: { "categories.code": categoryCode }
-        }
-    ])
+  const books = await Book.find()
+    .populate({
+      path: "categories",
+      match: { code: Number(categoryCode) },
+    })
+    .populate("authors publisher");
 
-    return books;
-}
+  // filter out books where no matching category was found
+  return books.filter((b) => b.categories.length > 0);
+};
+
 
 export const getBookById = async (bookId) => {
     console.log('bookId:', bookId);

@@ -38,6 +38,7 @@ import {
   };
 
   export const GetBooksByCategory = async (req, res, next) => {
+    console.log('Category Code:', req.params.categoryCode);
     try {
         const books = await getBooksByCategory(req.params.categoryCode);
         return successResponse(res, "Books fetched succesfully", { books }, 200);

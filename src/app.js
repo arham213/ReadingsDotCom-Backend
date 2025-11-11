@@ -6,11 +6,19 @@ import { errorHandler } from './middlewares/errorHandler.js';
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 app.use(express.json());
 
 // routes
 app.use('/api', router);
+
+app.get('/', (req, res) => {
+  res.send('Welcome to ReadingsDotCom API');
+});
 
 // error handler middleware
 app.use(errorHandler);

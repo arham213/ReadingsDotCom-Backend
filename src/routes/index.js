@@ -17,7 +17,7 @@ router.use('/users', UserRouter);
 router.use('/addresses', authMiddleware, AddressRouter);
 router.use('/cart', authMiddleware, authorizeRoles("user"), CartRouter);
 router.use('/orders', authMiddleware, OrderRouter);
-router.use('/books', authMiddleware, BookRouter);
+router.use('/books', BookRouter);
 router.use('/categories', authMiddleware, authorizeRoles("admin"), CategoryRouter);
 router.use('/authors', authMiddleware, authorizeRoles("admin"), AuthorRouter);
 router.use('/publishers', authMiddleware, authorizeRoles("admin"), PublisherRouter);
