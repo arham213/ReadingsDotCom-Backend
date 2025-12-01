@@ -96,12 +96,19 @@ const BookSchema = new mongoose.Schema({
     language: {
         type: String,
         required: true
+    },
+    inStock: {
+        type: Number,
+        default: 0
     }
 }, {timestamps: true})
 
 BookSchema.pre('save', function (next) {
     this.youSave = this.ourPrice * (this.discount / 100);
     this.ourPriceAfterDiscount = this.ourPrice - this.youSave;
+    if (this.inStock == 0) {
+        this.status = 'Out of Stock'
+    }
     next();
 });
 

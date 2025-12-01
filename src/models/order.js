@@ -56,6 +56,11 @@ const OrderSchema = new mongoose.Schema({
         required: true,
         default: 0  
     },
+    paymentMethod: {
+        type: String,
+        enum: ['Cash on Delivery', 'Bank Transfer', 'Debit Card', 'JazzCash', 'easypaisa'],
+        default: 'Cash on Delivery'
+    },
     orderItems: [{
         bookId: {
            type: mongoose.Schema.Types.ObjectId,

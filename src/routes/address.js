@@ -1,6 +1,5 @@
 import express from 'express';
 import { CreateAddress, DeleteAddress, GetAddressById, GetAddressesByUserId, UpdateAddress } from '../controllers/address.js';
-import { authMiddleware } from "../middlewares/auth.js";
 
 const AddressRouter = express.Router();
 

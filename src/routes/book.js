@@ -1,5 +1,5 @@
 import express from 'express';
-import { AdvancedBookSearch, CreateBook, DeleteBook, GetAllBooks, GetBookById, GetBooksByCategory, SearchBooks, UpdateBook } from '../controllers/book.js';
+import { AdvancedBookSearch, CreateBook, DeleteBook, GetAllBooks, GetBookById, GetBooksByAuthor, GetBooksByCategory, SearchBooks, UpdateBook } from '../controllers/book.js';
 import { authorizeRoles } from '../middlewares/authorizeRoles.js';
 
 const BookRouter = express.Router();
@@ -14,7 +14,10 @@ BookRouter.get('/advanced-search', AdvancedBookSearch);
 BookRouter.get('/', GetAllBooks);
 
 // Get Books By Category
-BookRouter.get('/:categoryCode', GetBooksByCategory)
+BookRouter.get('/category/:categoryCode', GetBooksByCategory)
+
+// Get Books By Author
+BookRouter.get('/author/:authorId', GetBooksByAuthor);
 
 // Get a single book by ID
 BookRouter.get('/:bookId', GetBookById);

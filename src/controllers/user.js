@@ -1,4 +1,4 @@
-import { createUser, verifyEmail, loginUser, editUser, addToWishList, removeFromWishlist, resendOTP, resetPassword, sendResetPasswordOTP, getUserById } from "../services/user.js";
+import { createUser, verifyEmail, loginUser, editUser, addToWishList, removeFromWishlist, resendOTP, resetPassword, sendResetPasswordOTP, getUserById, getWishlist } from "../services/user.js";
 import { createCart, getCart } from "../services/cart.js";
 import { failureResponseWithData, successResponse } from "../utils/response.js";
 
@@ -63,15 +63,17 @@ export const Login = async (req, res, next) => {
     const data = {
       user: {
         id: response.user._id,
+        name: response.user.fname,
         email: response.user.email,
-      },
-      ...(response.user.role === "user" && {
-        cart: {
-          cartItemCount: cart.itemCount,
-          cartId: cart._id
-        },
-      }),
-      token: response.token
+        ...(response.user.role === "user" && {
+          cart: {
+            cartItemCount: cart.itemCount,
+            cartId: cart._id
+          },
+        }),
+        wishlistItems: response.wishlistItems,
+        token: response.token
+      }
     }
 
     return successResponse(res, "User logged in successfully", data, 200);
@@ -134,6 +136,19 @@ export const EditUser = async (req, res, next) => {
 
 export const DeleteUser = async (req, res, next) => {
   
+}
+
+export const GetWishList = async(req, res, next) => {
+  console.log('Get Wishlist API called');
+  try {
+    const wishlist = await getWishlist(req.user.id);
+
+    console.log('wishlist:', wishlist);
+
+    return successResponse(res, "Wishlist fetched successfully", {wishlist: wishlist}, 200);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export const AddToWishList = async(req, res, next) => {

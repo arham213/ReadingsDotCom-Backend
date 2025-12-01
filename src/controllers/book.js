@@ -4,6 +4,7 @@ import {
     deleteBook,
     getAllBooks,
     getBookById,
+    getBooksByAuthor,
     getBooksByCategory,
     searchBooks,
     updateBook,
@@ -41,6 +42,16 @@ import {
     console.log('Category Code:', req.params.categoryCode);
     try {
         const books = await getBooksByCategory(req.params.categoryCode);
+        return successResponse(res, "Books fetched succesfully", { books }, 200);
+    } catch (error) {
+        next(error);
+    }
+  }
+
+  export const GetBooksByAuthor = async (req, res, next) => {
+    console.log('Author Id:', req.params.authorId);
+    try {
+        const books = await getBooksByAuthor(req.params.authorId);
         return successResponse(res, "Books fetched succesfully", { books }, 200);
     } catch (error) {
         next(error);

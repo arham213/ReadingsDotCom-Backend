@@ -1,5 +1,5 @@
 import express from 'express';
-import { addItemToCart, deleteItemInCart, getCartByUserId, updateItemInCart } from '../controllers/cart.js';
+import { addItemToCart, clearCart, deleteItemInCart, getCartByUserId, updateItemInCart } from '../controllers/cart.js';
 
 const CartRouter = express.Router();
 
@@ -16,5 +16,6 @@ CartRouter.put('/', updateItemInCart);
 CartRouter.delete('/', deleteItemInCart);
 
 //clear cart api
+CartRouter.delete('/clear-cart', clearCart)
 
 export default CartRouter;

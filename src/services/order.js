@@ -1,20 +1,21 @@
-import { Order } from "../models/index.js";
+import { Book, Order } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
 export const getAllOrders = async () => {
     const orders = await Order.find()
-    .populate("deliveryAddressId")
-    .populate("billingAddressId")
-    .populate("orderItems.bookId")
+        .populate("deliveryAddressId")
+        .populate("billingAddressId")
+        .populate("orderItems.bookId")
 
     return orders;
 }
 
 export const getOrdersByUser = async (userId) => {
     const order = await Order.find({ userId })
-    .populate("deliveryAddressId")
-    .populate("billingAddressId")
-    .populate("orderItems.bookId")
+        .sort({ createdAt: -1 })
+        .populate("deliveryAddressId")
+        .populate("billingAddressId")
+        .populate("orderItems.bookId")
 
     if (!order) throw new AppError("Orders not found", 404);
 
@@ -23,12 +24,20 @@ export const getOrdersByUser = async (userId) => {
 
 export const placeOrder = async (userId, orderData) => {
     const orderNo = (await Order.find()).length + 1;
+    const orderItems = orderData.orderItems;
+
+    orderItems?.forEach(async (orderItem) => {
+        const orderedBook = await Book.findById(orderItem.bookId._id);
+        orderedBook.inStock -= orderItem.quantity;
+        await orderedBook.save();
+    })
+
     const newOrder = await Order.create({ orderNo, userId, ...orderData });
 
     const populatedOrder = await Order.findById(newOrder._id)
-    .populate("deliveryAddressId")
-    .populate("billingAddressId")
-    .populate("orderItems.bookId")
+        .populate("deliveryAddressId")
+        .populate("billingAddressId")
+        .populate("orderItems.bookId")
 
     return populatedOrder;
 }
@@ -40,9 +49,9 @@ export const updateOrder = async (orderData) => {
         orderData,
         { new: true, runValidators: true }
     )
-    .populate("deliveryAddressId")
-    .populate("billingAddressId")
-    .populate("orderItems.bookId")
+        .populate("deliveryAddressId")
+        .populate("billingAddressId")
+        .populate("orderItems.bookId")
 
     if (!updatedOrder) throw new AppError("Order not found", 404);
 

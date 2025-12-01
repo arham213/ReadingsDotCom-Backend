@@ -2,6 +2,7 @@ import { verifyToken } from "../utils/jwt.js";
 import { failureResponse } from "../utils/response.js";
 
 export const authMiddleware = (req, res, next) => {
+    console.log('inside middleware')
     try {
         const authHeader = req.headers.authorization;
 
@@ -15,6 +16,7 @@ export const authMiddleware = (req, res, next) => {
 
         req.user = decoded;
 
+        console.log('verified')
         next();
     } catch (error) {
         next(error);

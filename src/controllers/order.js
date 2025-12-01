@@ -18,8 +18,8 @@ export const GetAllOrders = async (req, res, next) => {
 
 export const GetOrdersByUser = async (req, res, next) => {
   try {
-    const order = await getOrdersByUser(req.user.id);
-    return successResponse(res, "Orders fetched successfully", { order }, 200);
+    const orders = await getOrdersByUser(req.user.id);
+    return successResponse(res, "Orders fetched successfully", { orders }, 200);
   } catch (error) {
     next(error);
   }
@@ -27,8 +27,8 @@ export const GetOrdersByUser = async (req, res, next) => {
 
 export const PlaceOrder = async (req, res, next) => {
   try {
-    const order = await placeOrder(req.user.id, req.body);
-    return successResponse(res, "Order placed successfully", { order }, 201);
+    const orderNo = await placeOrder(req.user.id, req.body);
+    return successResponse(res, "Order placed successfully", { orderNo }, 201);
   } catch (error) {
     next(error);
   }

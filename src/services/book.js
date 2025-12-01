@@ -31,7 +31,10 @@ export const searchBooks = async (searchString) => {
                     { "authors.name": { $regex: searchString, $options: "i" } },
                 ]
             }
-        }
+        },
+
+        // ⭐ Limit to top 5 results
+        { $limit: 5 }
     ])
 
     return books;
@@ -104,15 +107,26 @@ export const getBooksByCategory = async (categoryCode) => {
     .populate("authors publisher");
 
   // filter out books where no matching category was found
-  return books.filter((b) => b.categories.length > 0);
+  return books.filter((book) => book.categories.length > 0);
+};
+
+export const getBooksByAuthor = async (authorId) => {
+  const books = await Book.find()
+    .populate({
+      path: "authors",
+      match: { _id: authorId },
+    })
+    .populate("categories publisher");
+
+  // filter out books where no matching author was found
+  return books.filter((book) => book.authors.length > 0);
 };
 
 
 export const getBookById = async (bookId) => {
     console.log('bookId:', bookId);
     const book = await Book.findById(bookId)
-
-    
+        .populate("categories authors publisher subCategories additionalCategories");
 
     if (!book) throw new AppError("Book not found", 404);
 
