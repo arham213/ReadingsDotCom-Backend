@@ -4,10 +4,14 @@ import app from './src/app.js';
 
 dotenv.config();
 
-const startServer = async () => {
-    await connectDB();
+// Connect to MongoDB
+connectDB();
+
+// Only listen locally if we are not in production (Vercel sets NODE_ENV to production)
+if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 8000;
-    app.listen(PORT, () => console.log(`Server Running on Port: ${PORT}`))
+    app.listen(PORT, () => console.log(`Server Running on Port: ${PORT}`));
 }
 
-startServer();
+// Export the Express API for Vercel
+export default app;
