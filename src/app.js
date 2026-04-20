@@ -19,7 +19,7 @@ app.use(express.json());
 app.use('/api', router);
 
 app.get('/', (req, res) => {
-  res.send('Welcome to Smart OCR');
+  res.send('Welcome to ReadingsDotCom API');
 });
 
 // error handler middleware

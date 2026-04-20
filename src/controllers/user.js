@@ -1,17 +1,48 @@
-import { createUser, loginUser, getUserById } from "../services/user.js";
+import { createUser, verifyEmail, loginUser, editUser, addToWishList, removeFromWishlist, resendOTP, resetPassword, sendResetPasswordOTP, getUserById, getWishlist } from "../services/user.js";
+import { createCart, getCart } from "../services/cart.js";
 import { failureResponseWithData, successResponse } from "../utils/response.js";
 
 export const Signup = async (req, res, next) => {
   try {
     const userData = req.body;
 
-    const user = await createUser(userData);
+    const [userId, message] = await createUser(userData);
 
-    return successResponse(res, 'Account created successfully', { userId: user._id }, 200);
+    if (userId && message) return successResponse(res, message, {userId: userId} , 200);
+
+    return successResponse(res, 'Account created successfully. We have sent you a verification email please verify your email', {userId: userId} , 201);
   } catch (error) {
     next(error);
   }
 };
+
+export const ResendOTP = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+
+    await resendOTP(userId);
+
+    return successResponse(res, 'OTP resent successfully. Please check your email', null , 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const VerifyEmail = async (req, res, next) => {
+  try {
+    const userData = req.body;
+
+    const user = await verifyEmail(userData);
+
+    if (user.role === "user") {
+      await createCart(user._id);
+    }
+
+    return successResponse(res, 'Email verified successfully', null , 200);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const Login = async (req, res, next) => {
   try {
@@ -19,16 +50,59 @@ export const Login = async (req, res, next) => {
 
     const response = await loginUser(userData);
 
+    if (!response.success) {
+      return failureResponseWithData(res, response.error, { userId: response.userId }, response.statusCode);
+    }
+
+    let cart;
+
+    if (response.user.role === "user") {
+      cart = await getCart(response.user._id);
+    }
+
     const data = {
       user: {
         id: response.user._id,
         name: response.user.fname,
         email: response.user.email,
+        ...(response.user.role === "user" && {
+          cart: {
+            cartItemCount: cart.itemCount,
+            cartId: cart._id
+          },
+        }),
+        wishlistItems: response.wishlistItems,
         token: response.token
       }
     }
 
     return successResponse(res, "User logged in successfully", data, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const ForgotPassword = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+
+    await sendResetPasswordOTP(userId);
+
+    return successResponse(res, "Password reset OTP has been sent to your email.", null, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const ResetPassword = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+
+    const userData = req.body;
+
+    await resetPassword(userData, userId);
+
+    return successResponse(res, "Password reset successfully", null, 200);
   } catch (error) {
     next(error);
   }
@@ -40,7 +114,58 @@ export const GetUserById = async (req, res, next) => {
 
     const user = await getUserById(userId);
 
-    return successResponse(res, "User fetched successfully", { user: user }, 200);
+    return successResponse(res, "User fetched successfully", {user: user}, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const EditUser = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const userData = req.body;
+
+    const user = await editUser(userId, userData);
+
+    return successResponse(res, 'User info updated successfully', {user: user}, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const DeleteUser = async (req, res, next) => {
+  
+}
+
+export const GetWishList = async(req, res, next) => {
+  console.log('Get Wishlist API called');
+  try {
+    const wishlist = await getWishlist(req.user.id);
+
+    console.log('wishlist:', wishlist);
+
+    return successResponse(res, "Wishlist fetched successfully", {wishlist: wishlist}, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const AddToWishList = async(req, res, next) => {
+  try {
+    const user = await addToWishList(req.user.id, req.params.bookId);
+
+    return successResponse(res, "Item added to the wishlist successfully", {user: user}, 200);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const RemoveFromWishlist = async(req, res, next) => {
+  try {
+    const user = await removeFromWishlist(req.user.id, req.params.bookId);
+
+    return successResponse(res, "Item removed from the wishlist successfully", {user: user}, 200);
   } catch (error) {
     next(error);
   }

@@ -1,10 +1,15 @@
 import {z} from "zod";
 
 export const signupSchema = z.object({
-    name: z
+    fname: z
     .string()
-    .min(1, 'Name is required')
-    .max(50, 'Name cannot exceed 50 characters'),
+    .min(1, 'First name is required')
+    .max(50, 'First name cannot exceed 50 characters'),
+
+    lname: z
+    .string()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name cannot exceed 50 characters'),
 
     email: z
     .string()
@@ -15,6 +20,15 @@ export const signupSchema = z.object({
     .string()
     .min(6, 'Password must be at least 6 characters long')
     .max(100, 'Password is too long'),
+
+    contactNo: z
+    .string()
+    .regex(/^[0-9]{10,15}$/, 'Contact number must be 10–15 digits')
+    .optional(),
+
+    role: z
+    .enum(['user', 'admin'])
+    .default('user'),
 }).strict();
 
 export const verifyEmailSchema = z.object({
