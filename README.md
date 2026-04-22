@@ -7,7 +7,7 @@
 
 Node.js + Express REST API backend for the ReadingsDotCom e-commerce platform. Manages authentication, product data, cart and order logic, and transactional email delivery.
 
-**Live:** [https://readings-dot-com-backend-eta.vercel.app](https://readings-dot-com-backend-eta.vercel.app/) &nbsp;|&nbsp; **Frontend:** [ReadingsDotCom-Frontend](https://github.com/arham213/ReadingsDotCom-Frontend)
+**Live:** [readings-dot-com-backend-eta.vercel.app](https://readings-dot-com-backend-eta.vercel.app/) &nbsp;|&nbsp; **Frontend:** [ReadingsDotCom-Frontend](https://github.com/arham213/ReadingsDotCom-Frontend)
 
 ---
 
