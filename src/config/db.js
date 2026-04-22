@@ -1,16 +1,43 @@
 import mongoose from 'mongoose';
 
+// Global is used here to ensure the connection is cached across hot reloads in development
+// and reused across serverless function executions in production.
+let cached = global.mongoose;
+
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-    if (mongoose.connection.readyState >= 1) {
-        return;
+    if (cached.conn) {
+        return cached.conn;
     }
-    
+
+    if (!cached.promise) {
+        // bufferCommands: false prevents Mongoose from hanging up for 10000ms if not connected.
+        // It will fail fast and let us know if there's an IP whitelist issue.
+        const opts = {
+            bufferCommands: false,
+        };
+
+        cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => {
+            console.log('MongoDB Connected Successfully');
+            return mongoose;
+        }).catch((error) => {
+            console.error('MongoDB connection failed: ', error.message);
+            cached.promise = null; // Reset promise so next request can retry
+            throw error;
+        });
+    }
+
     try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('MongoDB Connected Succesfully');
-    } catch (error) {
-        console.error('MongoDB connection failed: ', error.message);
+        cached.conn = await cached.promise;
+    } catch (e) {
+        cached.promise = null;
+        throw e;
     }
+
+    return cached.conn;
 }
 
 export default connectDB;

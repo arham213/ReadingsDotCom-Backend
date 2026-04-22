@@ -1,9 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import router from './routes/index.js';
+import connectDB from './config/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
+
+// Ensure DB is connected before handling any requests (Crucial for Vercel Serverless)
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // middlewares
 app.use(cors({

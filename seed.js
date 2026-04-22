@@ -1,112 +1,183 @@
-// scripts/seedBooks.js
 import mongoose from "mongoose";
+import { faker } from "@faker-js/faker";
+import dotenv from "dotenv";
+
 import BookModel from "./src/models/book.js";
+import AuthorModel from "./src/models/author.js";
+import PublisherModel from "./src/models/publisher.js";
+import CategoryModel from "./src/models/category.js";
 
-const MONGO_URI = "mongodb://localhost:27017/ReadingsDotCom";
+dotenv.config();
 
-// Provided IDs
-const authorIds = [
-  "691322b444dbc65c0c5b9e38",
-  "691322b444dbc65c0c5b9e3a",
-  "691322b444dbc65c0c5b9e3e",
-];
-const publisherIds = [
-  "691322fb949cff4508818540",
-  "691322fb949cff4508818541",
-  "691322fb949cff4508818542",
-];
-const categoryIds = [
-  "691321a001a5ded69a78e37a",
-  "691321a001a5ded69a78e37b",
-  "691321a001a5ded69a78e37c",
-  "691321a001a5ded69a78e37d",
-  "691321a001a5ded69a78e37e",
-  "691321a001a5ded69a78e37f",
-];
+// Defaulting to typical local MongoDB URI if missing
+const MONGO_URI = "mongodb+srv://arhamasjid213_db_user:PDi4Zmo7F2jkjekO@chat-app.xxiraqy.mongodb.net/readingsdotcom";
 
-// Helpers
-const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-const getRandomItems = (arr, count = 1) =>
-  arr.sort(() => 0.5 - Math.random()).slice(0, count);
-const randomInt = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-const randomFloat = (min, max, decimals = 2) =>
-  parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+const CATEGORIES_TO_SEED = [
+  // All Books / General Top Rows
+  { name: "New Releases", code: 301 },
+  { name: "Coming Soon (Pre-Order)", code: 304 },
+
+  // Fiction
+  { name: "Latest Fiction", code: 401 },
+  { name: "Award Winners", code: 402 },
+  { name: "Romance", code: 403 },
+  { name: "Sci-Fi & Fantasy", code: 404 },
+  { name: "Mystery & Thrillers", code: 405 },
+  { name: "Historical Fiction", code: 406 },
+
+  // Non-Fiction
+  { name: "New Arrivals", code: 501 },
+  { name: "Bestsellers", code: 502 },
+  { name: "Biography & Memoir", code: 503 },
+  { name: "Business & Economics", code: 504 },
+  { name: "History", code: 505 },
+  { name: "Self-Help", code: 506 },
+
+  // Young Adults
+  { name: "YA Fantasy", code: 601 },
+  { name: "YA Romance", code: 602 },
+  { name: "Coming of Age", code: 603 },
+
+  // Children
+  { name: "Ages 0-2 (Toddlers)", code: 701 },
+  { name: "Ages 3-5 (Preschool)", code: 702 },
+  { name: "Ages 6-8", code: 703 },
+  { name: "Ages 9-12", code: 704 },
+
+  // Urdu Books
+  { name: "New Urdu Releases", code: 801 },
+  { name: "Urdu Fiction", code: 802 },
+  { name: "Urdu Poetry", code: 803 },
+  { name: "Urdu History", code: 804 },
+  { name: "Islamic Books", code: 805 },
+
+  // Our Publications
+  { name: "Featured Publications", code: 901 },
+  { name: "Bestsellers", code: 902 },
+  { name: "Upcoming Releases", code: 903 },
+
+  // High Discounts
+  { name: "50% Off", code: 1001 },
+  { name: "Clearance Sale", code: 1002 },
+  { name: "Bargain Books", code: 1003 },
+
+  // Stationery & Art Supplies
+  { name: "Notebooks & Journals", code: 1101 },
+  { name: "Pens & Pencils", code: 1102 },
+  { name: "Art Material", code: 1103 },
+  { name: "Office Supplies", code: 1104 },
+
+  // Toys & Games
+  { name: "Educational Toys", code: 1201 },
+  { name: "Board Games", code: 1202 },
+  { name: "Puzzles", code: 1203 },
+
+  // Send Gift Card
+  { name: "Digital Gift Cards", code: 1301 },
+  { name: "Physical Gift Cards", code: 1302 },
+  { name: "Corporate Gifting", code: 1303 },
+];
 
 const FORMATS = ["Audio Book", "Board Book", "Flexi Bind", "Hard Cover", "Paperback"];
-const LANGUAGES = ["English"];
-const STATUS = ["In Stock", "Pre-Order", "Out of Stock"];
+const STATUSES = ["In Stock", "Pre-Order", "Out of Stock"];
 
-// Generate 50 books for each category
-const generateBooksForCategory = (categoryId, count = 50) => {
-  const books = [];
-
-  for (let i = 1; i <= count; i++) {
-    const listPrice = randomInt(500, 2500);
-    const discount = [0, 5, 10, 15, 20][Math.floor(Math.random() * 5)];
-    const ourPrice = listPrice;
-    const youSave = (ourPrice * discount) / 100;
-    const ourPriceAfterDiscount = ourPrice - youSave;
-
-    books.push({
-      title: `Category-${categoryId}-Book-${i}`,
-      imageUrl: `https://picsum.photos/seed/${categoryId}-${i}/400/600`,
-      description: `Random description for category ${categoryId}, book ${i}.`,
-      ISBN: `ISBN-${categoryId}-${i}`,
-      pagesCount: randomInt(100, 600),
-      shippingWeight: randomFloat(0.3, 1.5),
-      dimensions: `${randomInt(5, 7)} x ${randomInt(8, 10)} inches`,
-      listPrice,
-      listPriceCurrency: "Rs.",
-      ourPrice,
-      discount,
-      ourPriceAfterDiscount,
-      youSave,
-      format: getRandomItem(FORMATS),
-      publicationYear: randomInt(1990, 2024),
-      publisher: getRandomItem(publisherIds),
-      authors: getRandomItems(authorIds, randomInt(1, 2)),
-      categories: [categoryId],
-      subCategories: [],
-      additionalCategories: [],
-      status: getRandomItem(STATUS),
-      statusMessage: "Available",
-
-      // ⭐ NEW ATTRIBUTE ADDED HERE
-      inStock: randomInt(0, 5),
-
-      language: getRandomItem(LANGUAGES),
-    });
-  }
-
-  return books;
+const getRandomItems = (arr, min, max) => {
+  const count = faker.number.int({ min, max });
+  return faker.helpers.arrayElements(arr, count);
 };
 
-async function seedBooks() {
+function toTitleCase(str) {
+  return str.replace(/\b\w/g, l => l.toUpperCase());
+}
+
+async function seedDatabase() {
   try {
+    console.log(`⏳ Connecting to MongoDB at ${MONGO_URI}...`);
     await mongoose.connect(MONGO_URI);
-    console.log("✅ Connected to MongoDB");
+    console.log("✅ Connected securely.");
 
+    // 1. Clear Existing
+    console.log("🧹 Clearing existing collections...");
     await BookModel.deleteMany({});
-    console.log("🧹 Cleared existing books");
+    await CategoryModel.deleteMany({});
+    await AuthorModel.deleteMany({});
+    await PublisherModel.deleteMany({});
+    console.log("✅ Cleared existing data.");
 
-    let allBooks = [];
+    // 2. Seed Categories
+    console.log("🌱 Seeding Categories...");
+    const insertedCategories = await CategoryModel.insertMany(CATEGORIES_TO_SEED);
+    console.log(`✅ Seeded ${insertedCategories.length} categories.`);
 
-    for (const categoryId of categoryIds) {
-      const books = generateBooksForCategory(categoryId, 50);
-      allBooks = allBooks.concat(books);
+    // 3. Seed Authors & Publishers
+    console.log("🌱 Seeding Authors and Publishers...");
+    const authorsToSelect = Array.from({ length: 10 }).map(() => ({
+      name: faker.person.fullName(),
+      aboutInfo: faker.lorem.paragraph(),
+    }));
+    const insertedAuthors = await AuthorModel.insertMany(authorsToSelect);
+
+    const publishersToSelect = Array.from({ length: 8 }).map(() => ({
+      name: faker.company.name(),
+    }));
+    const insertedPublishers = await PublisherModel.insertMany(publishersToSelect);
+    console.log(`✅ Seeded ${insertedAuthors.length} authors and ${insertedPublishers.length} publishers.`);
+
+    // 4. Seed Books
+    console.log("🌱 Seeding random Books...");
+    const booksToInsert = [];
+    for (let i = 0; i < 100; i++) {
+        const listPrice = faker.number.int({ min: 500, max: 5000 });
+        const discount = faker.helpers.arrayElement([0, 10, 20, 50]);
+        const ourPrice = listPrice;
+        const youSave = (ourPrice * discount) / 100;
+        const ourPriceAfterDiscount = ourPrice - youSave;
+
+        // Ensure we fetch IDs of generated categories/authors/publishers
+        const bookCategories = getRandomItems(insertedCategories, 1, 3).map(c => c._id);
+        const bookAuthors = getRandomItems(insertedAuthors, 1, 2).map(a => a._id);
+        const bookPublisher = faker.helpers.arrayElement(insertedPublishers)._id;
+
+        booksToInsert.push({
+            title: toTitleCase(faker.lorem.words({ min: 2, max: 6 })),
+            imageUrl: faker.image.url({ width: 400, height: 600 }),
+            description: faker.lorem.paragraphs(2),
+            ISBN: faker.string.numeric(13),
+            pagesCount: faker.number.int({ min: 50, max: 1000 }),
+            shippingWeight: faker.number.float({ min: 0.1, max: 2, fractionDigits: 2 }),
+            dimensions: `${faker.number.float({min: 4, max: 10, fractionDigits: 1})} x ${faker.number.float({min: 6, max: 12, fractionDigits: 1})} inches`,
+            listPrice: listPrice,
+            listPriceCurrency: "PKR",
+            ourPrice: ourPrice,
+            discount: discount,
+            ourPriceAfterDiscount: ourPriceAfterDiscount,
+            youSave: youSave,
+            format: faker.helpers.arrayElement(FORMATS),
+            publicationYear: faker.number.int({ min: 1980, max: 2024 }),
+            status: faker.helpers.arrayElement(STATUSES),
+            statusMessage: faker.helpers.arrayElement(["Available now", "Ships tomorrow", "Limited stock"]),
+            inStock: faker.number.int({ min: 0, max: 50 }),
+            language: faker.helpers.arrayElement(["English", "Urdu"]),
+            
+            // Relational fields
+            publisher: bookPublisher,
+            authors: bookAuthors,
+            categories: bookCategories,
+            subCategories: [],
+            additionalCategories: []
+        });
     }
 
-    await BookModel.insertMany(allBooks);
-
-    console.log(`📚 Successfully seeded ${allBooks.length} books!`);
+    const insertedBooks = await BookModel.insertMany(booksToInsert);
+    console.log(`✅ Seeded ${insertedBooks.length} random books successfully!`);
 
     await mongoose.disconnect();
-    console.log("🔌 Disconnected from MongoDB");
-  } catch (err) {
-    console.error("❌ Error seeding books:", err);
+    console.log("🔌 Disconnected from MongoDB. Seeding Complete.");
+  } catch (error) {
+    console.error("❌ Error during seeding:", error);
     await mongoose.disconnect();
+    process.exit(1);
   }
 }
 
-seedBooks();
+seedDatabase();
