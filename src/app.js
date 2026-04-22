@@ -6,12 +6,6 @@ import { errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
 
-// Ensure DB is connected before handling any requests (Crucial for Vercel Serverless)
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
-});
-
 // middlewares
 app.use(cors({
   origin: function (origin, callback) {
@@ -21,6 +15,16 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+
+// Ensure DB is connected before handling any requests (Crucial for Vercel Serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // routes
 app.use('/api', router);
