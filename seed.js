@@ -124,48 +124,54 @@ async function seedDatabase() {
     console.log(`✅ Seeded ${insertedAuthors.length} authors and ${insertedPublishers.length} publishers.`);
 
     // 4. Seed Books
-    console.log("🌱 Seeding random Books...");
+    console.log("🌱 Seeding Books for every category...");
     const booksToInsert = [];
-    for (let i = 0; i < 100; i++) {
-        const listPrice = faker.number.int({ min: 500, max: 5000 });
-        const discount = faker.helpers.arrayElement([0, 10, 20, 50]);
-        const ourPrice = listPrice;
-        const youSave = (ourPrice * discount) / 100;
-        const ourPriceAfterDiscount = ourPrice - youSave;
+    
+    // Loop over each category to guarantee it gets at least 5 books
+    for (const category of insertedCategories) {
+        for (let i = 0; i < 5; i++) {
+            const listPrice = faker.number.int({ min: 500, max: 5000 });
+            const discount = faker.helpers.arrayElement([0, 10, 20, 50]);
+            const ourPrice = listPrice;
+            const youSave = (ourPrice * discount) / 100;
+            const ourPriceAfterDiscount = ourPrice - youSave;
 
-        // Ensure we fetch IDs of generated categories/authors/publishers
-        const bookCategories = getRandomItems(insertedCategories, 1, 3).map(c => c._id);
-        const bookAuthors = getRandomItems(insertedAuthors, 1, 2).map(a => a._id);
-        const bookPublisher = faker.helpers.arrayElement(insertedPublishers)._id;
-
-        booksToInsert.push({
-            title: toTitleCase(faker.lorem.words({ min: 2, max: 6 })),
-            imageUrl: faker.image.url({ width: 400, height: 600 }),
-            description: faker.lorem.paragraphs(2),
-            ISBN: faker.string.numeric(13),
-            pagesCount: faker.number.int({ min: 50, max: 1000 }),
-            shippingWeight: faker.number.float({ min: 0.1, max: 2, fractionDigits: 2 }),
-            dimensions: `${faker.number.float({min: 4, max: 10, fractionDigits: 1})} x ${faker.number.float({min: 6, max: 12, fractionDigits: 1})} inches`,
-            listPrice: listPrice,
-            listPriceCurrency: "PKR",
-            ourPrice: ourPrice,
-            discount: discount,
-            ourPriceAfterDiscount: ourPriceAfterDiscount,
-            youSave: youSave,
-            format: faker.helpers.arrayElement(FORMATS),
-            publicationYear: faker.number.int({ min: 1980, max: 2024 }),
-            status: faker.helpers.arrayElement(STATUSES),
-            statusMessage: faker.helpers.arrayElement(["Available now", "Ships tomorrow", "Limited stock"]),
-            inStock: faker.number.int({ min: 0, max: 50 }),
-            language: faker.helpers.arrayElement(["English", "Urdu"]),
+            // Give the book this category, plus optionally 1-2 random others
+            const additionalRandomCategories = getRandomItems(insertedCategories, 0, 2).map(c => c._id);
+            const bookCategories = [...new Set([category._id, ...additionalRandomCategories])];
             
-            // Relational fields
-            publisher: bookPublisher,
-            authors: bookAuthors,
-            categories: bookCategories,
-            subCategories: [],
-            additionalCategories: []
-        });
+            const bookAuthors = getRandomItems(insertedAuthors, 1, 2).map(a => a._id);
+            const bookPublisher = faker.helpers.arrayElement(insertedPublishers)._id;
+
+            booksToInsert.push({
+                title: toTitleCase(faker.lorem.words({ min: 2, max: 6 })),
+                imageUrl: faker.image.url({ width: 400, height: 600 }),
+                description: faker.lorem.paragraphs(2),
+                ISBN: faker.string.numeric(13),
+                pagesCount: faker.number.int({ min: 50, max: 1000 }),
+                shippingWeight: faker.number.float({ min: 0.1, max: 2, fractionDigits: 2 }),
+                dimensions: `${faker.number.float({min: 4, max: 10, fractionDigits: 1})} x ${faker.number.float({min: 6, max: 12, fractionDigits: 1})} inches`,
+                listPrice: listPrice,
+                listPriceCurrency: "PKR",
+                ourPrice: ourPrice,
+                discount: discount,
+                ourPriceAfterDiscount: ourPriceAfterDiscount,
+                youSave: youSave,
+                format: faker.helpers.arrayElement(FORMATS),
+                publicationYear: faker.number.int({ min: 1980, max: 2024 }),
+                status: faker.helpers.arrayElement(STATUSES),
+                statusMessage: faker.helpers.arrayElement(["Available now", "Ships tomorrow", "Limited stock"]),
+                inStock: faker.number.int({ min: 0, max: 50 }),
+                language: faker.helpers.arrayElement(["English", "Urdu"]),
+                
+                // Relational fields
+                publisher: bookPublisher,
+                authors: bookAuthors,
+                categories: bookCategories,
+                subCategories: [],
+                additionalCategories: []
+            });
+        }
     }
 
     const insertedBooks = await BookModel.insertMany(booksToInsert);
